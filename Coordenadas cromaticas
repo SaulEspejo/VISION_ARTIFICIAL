@@ -1,0 +1,67 @@
+import numpy as np
+import cv2
+
+img = cv2.imread('ejemplo.jpg')
+img3 = cv2.imread('ejemplo.jpg')
+
+m, n, d = img.shape
+#img2 = np.zeros(img.shape)
+
+#rgb(37, 150, 190)
+img2 = np.asarray(img)
+img4 = np.asarray(img)
+for x in range(m):
+    
+    for y in range(n):
+        RGB = (int(img2[x,y,0]*.2) + int(img2[x,y,1]*.2) + int(img2[x,y,2]*.2))
+        r = int(img2[x,y,0]*.2)
+        g = int(img2[x,y,1]*.2)
+        b = int(img2[x,y,2]*.2)
+
+        r2 = r*(1/RGB)
+        g2 = g*(1/RGB)
+        b2 = b*(1/RGB)
+
+        img2[x,y,0] = r2*255
+        img2[x,y,1] = g2*255
+        img2[x,y,2] = b2*255
+        
+    #    if img2[x,y,0]>=235:
+     #       img2[x,y,0] = 0
+      #      img2[x,y,1] = 0
+       #else:
+        #    img2[x,y,0] = 255
+         #   img2[x,y,1] = 255
+          #  img2[x,y,2] = 255   
+            
+for x in range(m):
+    
+    for y in range(n):
+        RGB = (int(img4[x,y,0]*.8) + int(img4[x,y,1]*.8) + int(img4[x,y,2]*.8))
+        r = int(img4[x,y,0]*.8)
+        g = int(img4[x,y,1]*.8)
+        b = int(img4[x,y,2]*.8)
+
+        r2 = r*(1/RGB)
+        g2 = g*(1/RGB)
+        b2 = b*(1/RGB)
+
+        img4[x,y,0] = r2*255
+        img4[x,y,1] = g2*255
+        img4[x,y,2] = b2*255
+        
+       # if img4[x,y,0]>=235:
+        #    img4[x,y,0] = 0
+         #   img4[x,y,1] = 0
+          #  img4[x,y,2] = 0
+        #else:
+         #   img4[x,y,0] = 255
+          #  img4[x,y,1] = 255
+           # img4[x,y,2] = 255  
+cv2.imwrite('resultado.jpg', img2)
+cv2.imwrite('resultado2.jpg', img4)
+cv2.imshow('IMAGEN 1',img3)
+cv2.imshow('IMAGEN 2',img2)
+cv2.imshow('IMAGEN 3',img4)
+cv2.waitKey()
+cv2.destroyAllWindows()
