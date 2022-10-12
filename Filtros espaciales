@@ -1,0 +1,136 @@
+import cv2 
+import random
+import math
+import copy
+import numpy as np
+from matplotlib import pyplot as plt
+
+def sp_noise(image,prob):
+    output = np.zeros(image.shape,np.uint8)
+    thres = 1 - prob
+    
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            rdn = random.random()
+            if rdn < prob:
+                output[i][j] = 0
+            elif rdn > thres:
+                output[i][j] = 255
+            else:
+                output[i][j] = image[i][j]
+    return output
+
+def gasuss_noise(image, mean=0, var=0.001):
+    
+    image = np.array(image/255, dtype=float)
+    noise = np.random.normal(mean, var ** 0.5, image.shape)
+    out = image + noise
+    if out.min() < 0:
+        low_clip = -1.
+    else:
+            low_clip = 0.
+    out = np.clip(out, low_clip, 1.0)
+    out = np.uint8(out*255)
+    
+    return out
+
+def spilt( a ):
+    if a/2 == 0:
+        x1 = x2 = a/2
+    else:
+        x1 = math.floor( a/2 )
+        x2 = a - x1
+    return -x1,x2
+
+def original (i, j, k, a, b,img):
+    x1, x2 = spilt(a)
+    y1, y2 = spilt(b)
+    temp = np.zeros(a * b)
+    count = 0
+    for m in range(x1, x2):
+        for n in range(y1, y2):
+            if i + m < 0 or i + m > img.shape[0] - 1 or j + n < 0 or j + n > img.shape[1] - 1:
+                temp[count] = img[i, j, k]
+            else:
+                temp[count] = img[i + m, j + n, k]
+            count += 1
+    return  temp 
+
+def max_function(a, b, img):
+    img0 = copy.copy(img)
+    for i in range(0, img.shape[0]):
+        for j in range(2, img.shape[1]):
+            for k in range(img.shape[2]):
+                temp = original(i, j, k, a, b, img0)
+                img[i, j, k] = np.max(temp)
+    return img
+
+def min_function(a, b, img):
+    img0 = copy.copy(img)
+    for i in range(0, img.shape[0]):
+        for j in range(2, img.shape[1]):
+            for k in range(img.shape[2]):
+                temp = original(i, j, k, a, b, img0)
+                img[i, j, k] = np.min(temp)
+    return img
+   
+img = cv2.imread("e1.jpg")
+
+#ruido sal y pimienta
+
+img0 = sp_noise(img, prob=0.02)
+#ruido gaussiano
+img1 = gasuss_noise(img, mean=0, var=0.01)
+
+#filtro de media
+
+med0 = cv2.blur(img0,(5,5))
+med1 = cv2.blur(img1,(5,5))
+
+#filtro gaussanio
+
+gas0 = cv2.GaussianBlur(img0,(3,3),1)
+gas1 = cv2.GaussianBlur(img1,(3,3),1)
+
+#filtro mediana
+
+mediana0 = cv2.medianBlur(img0,5)
+mediana1 = cv2.medianBlur(img1,5)
+
+#filtro maximo 
+max0 = max_function(3, 3, copy.copy(img0))
+max1 = max_function(3, 3, copy.copy(img1))
+
+#filtro minimo
+min0 = min_function(3, 3, copy.copy(img0))
+min1 = min_function(3, 3, copy.copy(img1))
+
+
+cv2.imwrite('ruidosp.jpg', img0)
+cv2.imwrite('ruidogaus.jpg', img1)
+cv2.imwrite('media1.jpg', med0)
+cv2.imwrite('media2.jpg', med1)
+cv2.imwrite('gaus1.jpg', gas0)
+cv2.imwrite('gaus2.jpg', gas1)
+cv2.imwrite('meadiana1.jpg', mediana0)
+cv2.imwrite('meadiana2.jpg', mediana1)
+cv2.imwrite('max1.jpg', max0)
+cv2.imwrite('max2.jpg', max1)
+cv2.imwrite('min1.jpg', min0)
+cv2.imwrite('min2.jpg', min1)
+
+cv2.imshow('original',img)
+cv2.imshow('sal y pim',img0)
+cv2.imshow('gauss',img1)
+cv2.imshow('med1',med0)
+cv2.imshow('med2',med1)
+cv2.imshow('gaus1',gas0)
+cv2.imshow('gaus2',gas1)
+cv2.imshow('meadiana1',mediana0)
+cv2.imshow('mediana2',mediana1)
+cv2.imshow('max1',max0)
+cv2.imshow('max2',max1)
+cv2.imshow('min1',min0)
+cv2.imshow('min2',min1)
+cv2.waitKey()
+cv2.destroyAllWindows()
