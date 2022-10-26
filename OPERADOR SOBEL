@@ -1,0 +1,35 @@
+import cv2 as cv
+import random
+import math
+import copy
+import numpy as np
+from matplotlib import pyplot as plt
+
+img = cv.imread('supra.jpg',cv.COLOR_BGR2GRAY)
+
+rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+
+grayImage = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+kernelx = np.array([[.1,.1,.1],[0,0,0],[-.1,-.1,-.1]],dtype=int)
+
+kernely = np.array([[-1,0,1],[-.1,0,.1],[-.1,0,.1]],dtype=int)
+
+x = cv.filter2D(grayImage, cv.CV_16S,kernelx)
+
+y = cv.filter2D(grayImage, cv.CV_16S,kernely)
+
+absX = cv.convertScaleAbs(x)
+absY = cv.convertScaleAbs(y)
+
+Prewitt = cv.addWeighted(absX, 0.5, absY, 0.5, 0)
+
+
+cv.imwrite('rgbimg.jpg', rgb_img)
+cv.imwrite('prewitt.jpg', Prewitt)
+
+cv.imshow('original',rgb_img)
+cv.imshow('PREWITTS',Prewitt)
+
+cv.waitKey()
+cv.destroyAllWindows()
